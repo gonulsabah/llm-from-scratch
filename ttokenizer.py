@@ -1,4 +1,5 @@
 import json
+import torch
 
 
 class Tokenizer:
@@ -31,7 +32,7 @@ class Tokenizer:
             # Add space token at the end of each word
             tokens.append(self.vocab.get(' ', None))
         tokens.pop()  # Remove the last space token
-        return tokens
+        return torch.tensor(tokens)
 
     def decode(self, tokens):
         reverse_vocab = {v: k for k, v in self.vocab.items()}
@@ -39,4 +40,5 @@ class Tokenizer:
 
     def tokenizer(self, text):
         token_ids = self.encode(text)
+        token_ids = token_ids.detach().numpy().tolist()
         return [self.reverse_vocab[id] for id in token_ids]
