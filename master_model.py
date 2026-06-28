@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from self_attention import SelfAttention
+from casual_self_attention import CasualSelfAttention
 
 
 def get_rotary_position_encoding(input: torch.Tensor, base=10000, device="cpu"):
@@ -39,7 +40,9 @@ class MasterModel(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.pos_embedding = nn.Embedding(context_length, embedding_dim)
         self.get_pos = get_rotary_position_encoding
-        self.self_attention = SelfAttention(embedding_dim, embedding_dim)
+        # self.self_attention = SelfAttention(embedding_dim, embedding_dim)
+        self.self_attention = CasualSelfAttention(
+            embedding_dim, embedding_dim, dropout_rate=0.5)
 
     def forward(self, x):
         x = self.embedding(x)  # dictionary meaning of the tokens(words)

@@ -7,9 +7,9 @@ class SelfAttention(nn.Module):
         super().__init__()
         self.embedding_dim = embedding_dim
 
-        self.q_weights = nn.Linear(embedding_dim, embedding_dim, bias=False)
-        self.k_weights = nn.Linear(embedding_dim, embedding_dim, bias=False)
-        self.v_weights = nn.Linear(embedding_dim, embedding_dim, bias=False)
+        self.q_weights = nn.Linear(embedding_dim, output_dim, bias=False)
+        self.k_weights = nn.Linear(embedding_dim, output_dim, bias=False)
+        self.v_weights = nn.Linear(embedding_dim, output_dim, bias=False)
 
     def forward(self, x):
         q = self.q_weights(x)
