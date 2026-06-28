@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 from self_attention import SelfAttention
 from casual_self_attention import CasualSelfAttention
+from multi_head_attention import MultiHeadAttention
+from norm_layer import LayerNorm
+from mlp import MLP
 
 
 def get_rotary_position_encoding(input: torch.Tensor, base=10000, device="cpu"):
@@ -35,18 +38,29 @@ def get_rotary_position_encoding(input: torch.Tensor, base=10000, device="cpu"):
 
 
 class MasterModel(nn.Module):
-    def __init__(self, vocab_size, context_length, embedding_dim):
+    def __init__(self, vocab_size, context_length, num_heads, embedding_dim):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.pos_embedding = nn.Embedding(context_length, embedding_dim)
         self.get_pos = get_rotary_position_encoding
-        # self.self_attention = SelfAttention(embedding_dim, embedding_dim)
-        self.self_attention = CasualSelfAttention(
-            embedding_dim, embedding_dim, dropout_rate=0.5)
+        # 1 self.self_attention = SelfAttention(embedding_dim, embedding_dim)
+        # 2self.self_attention = CasualSelfAttention(
+        #    embedding_dim, embedding_dim, context_length, dropout_rate=0.5)
+        self.self_attention = MultiHeadAttention(
+            embedding_dim,
+            embedding_dim,
+            context_length,
+            num_heads,
+            dropout_rate=0.5
+        )
+        self.norm = LayerNorm(embedding_dim)
+        self.mlp = MLP(embedding_dim, embedding_dim)
 
     def forward(self, x):
         x = self.embedding(x)  # dictionary meaning of the tokens(words)
         # meaning of the tokens in the sentece according to their position
         x = self.get_pos(x)
         x = self.self_attention(x)
+        x = self.norm(x)
+        x = self.mlp(x)
         return x
