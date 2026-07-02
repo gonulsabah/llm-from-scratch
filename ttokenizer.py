@@ -31,7 +31,8 @@ class Tokenizer:
                     i += 1
             # Add space token at the end of each word
             tokens.append(self.vocab.get(' ', None))
-        tokens.pop()  # Remove the last space token
+        if not text.endswith(" "):
+            tokens.pop()  # Remove the last space token
         return torch.tensor(tokens)
 
     def decode(self, tokens):
